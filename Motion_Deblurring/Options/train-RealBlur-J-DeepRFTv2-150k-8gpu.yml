@@ -1,0 +1,242 @@
+# general settings ./train_8gpu.sh Motion_Deblurring/Options/Abalation-DeepRFTv2-200k-8gpu.yml
+name: RealBlur_J-DeepRFTv2-NAFEVSBlockx2-148-512-776-150k
+
+model_type: ImageCleanModel # ImageCleanModel # ImagePadCleanModel
+scale: 1
+num_gpu: 8  # set num_gpu: 0 for cpu mode
+manual_seed: 100
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: TrainSet
+    type: Dataset_PairedImage # Pad
+#    dataroot_gt: ~/Data1/mxt/GoPro/train/target_crops
+#    dataroot_lq: ~/Data1/mxt/GoPro/train/input_crops
+   #  dataroot_gt: /data/mxt_data/GoPro/train/target_crops
+   #  dataroot_lq: /data/mxt_data/GoPro/train/input_crops
+    dataroot_gt: /data/mxt_data/RealBlur/RealBlur_J/train/sharp
+    dataroot_lq: /data/mxt_data/RealBlur/RealBlur_J/train/blur
+    geometric_augs: true
+
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 2 # 8
+
+    ### ------- Training on single fixed-patch size 128x128---------
+#     mini_batch_sizes: [2, 1, 1, 1] # 8
+#     iters: [450000, 60000, 50000, 40000]
+#     gt_size: -1
+ #    gt_sizes: [ 256, 512, 640, -1 ]
+    ### ------------------------------------------------------------
+    mini_batch_sizes: [2, 1] # [2, 1, 1, 1] # 8
+    iters: [50000, 100000] # [120000, 10000, 10000, 10000]
+    gt_size: [776, 680] # [776, 680] # [736, 640, 64, 64] #, 64, 64]
+    gt_sizes: [ 512, [776, 680] ] # [512, 640, [736, 640], [776, 680]] # [ [776, 680] ]
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: ValSet
+    type: Dataset_PairedImage # Pad
+#    dataroot_gt: ~/Data1/mxt/GoPro/val/target_crops
+#    dataroot_lq: ~/Data1/mxt/GoPro/val/input_crops
+    # dataroot_gt: /data/mxt_data/GoPro/val/target_crops
+    # dataroot_lq: /data/mxt_data/GoPro/val/input_crops
+    dataroot_gt: /data/mxt_data/RealBlur/RealBlur_J/test/sharp
+    dataroot_lq: /data/mxt_data/RealBlur/RealBlur_J/test/blur
+    # crop_size: -1 # 256 320
+    # crop_sizes: [ 256, 512, 640, -1 ]
+    crop_size: [776, 680] # -1 # [-1, -1, 64, 64]
+    crop_sizes: [ -1, -1 ] # , -1, -1, -1 ]
+    io_backend:
+      type: disk
+
+network_g:
+  type: DeepRFTv2
+  up2scale: false
+  frozen_encoder: false
+  inp_channels: 3
+  out_channels: 3
+  dims: [48, 48, 48] # [64, 128, 256, 512] # [32, 64, 128, 256]
+  num_global_unet: 2
+  num_kernel_est: 0
+  num_local_unet: 0
+  deblur_kernel_mode: ker_max_mid # ker_max_mid_small ker_max_mid ker_max no_ker
+  deblur_kernel: true
+  deblur_mask: false
+  latent_sharp: true
+  inp_feature: feature  # inp_latentsharp_feature
+  deconv_feature: feature
+  norm_type: LayerNorm  # LayerNorm BatchNorm  InstanceNorm None
+  spatial_add: false
+  spatial_decoder: false
+  num_ker: 48
+  pad_size: 32
+  dims_ker: [48, 48, 48]  #  32
+  ks: [0, 0, 0] # [0, 0, 0] # [32, 16, 8]
+  sub_image: false
+  sub_image_size: [1512, 1512]
+  overlap_size: [80, 80]
+  downsample: concat # concat_downsample # downsample downsample_concat
+  downsample_ker: concat_nodownsample # noconcat_nodownsample concat_nodownsample
+  downsample_local: concat
+
+  downsample_mode: conv # bilinear shuffle_conv conv_shuffle conv
+  upsample_mode: conv1x1_shuffle   # bilinear conv1x1_shuffle shuffle_conv conv_shuffle conv
+  fuse_downsample_mode: conv
+  fuse_upsample_mode: conv1x1_shuffle
+#  random_pad: false
+#  pad_mode: replicate
+  fuse_method_encoder: Fuse_in_Encoder # a DownSample2shallow # b Fuse_in_Encoder # c Fuse_in_Encoder2shallow # NoFuse # DownSampleAdd
+  fuse_method_decoder: DownSample2latent # d DownSample2latent # e Fuse_in_Decoder # f Fuse_in_Decoder2latent # UpSampleAdd012
+  num_local_decoder: 0
+  enc_local_layers: [ 1, 1, 2, 2 ]
+  dec_local_layers: [ 2, 2, 1, 1 ]
+  sub_dec_width: 48
+  baseblock_enc_local: [ localnaf_fouriercomplex, localnaf_fouriercomplex, localnaf_fouriercomplex, localnaf_fouriercomplex ] # naf_FourierSplit
+  baseblock_dec_local: [ localnaf_fouriercomplex, localnaf_fouriercomplex, localnaf_fouriercomplex, localnaf_fouriercomplex ]
+  num_heads_enc: [1, 2, 4, 8]
+  num_heads_dec: [8, 4, 2, 1] # ['fcnaf', 'fcnaf', 'fcnaf'] ['naf', 'naf', 'naf'] fdmambaforward_naf fsmambaforward_naf fmambaforward_naf fouriernaf flocalmambaforward_naf
+  baseblock_enc_small_global: [['naf', 'naf', 'naf'], ['naf', 'naf', 'naf']] # ASSMBlock
+  baseblock_dec_small_global: [['naf', 'naf', 'naf'], ['naf', 'naf', 'naf']]
+  baseblock_enc_mid_global: [['naf', 'naf', 'naf'], ['naf', 'naf', 'naf']]
+  baseblock_dec_mid_global: [['naf', 'naf', 'naf'], ['naf', 'naf', 'naf']]
+    # baseblock_enc_mid_global: [['NAFEVSBlock', 'NAFEVSBlock', 'NAFEVSBlock'], ['NAFEVSBlock', 'NAFEVSBlock', 'NAFEVSBlock']] # localnaf naf_patch logfouriernaf LocalNAFEVSBlock_patch
+    # baseblock_dec_mid_global: [['NAFEVSBlock', 'NAFEVSBlock', 'NAFEVSBlock'], ['NAFEVSBlock', 'NAFEVSBlock', 'NAFEVSBlock']]
+    # baseblock_enc_max_global: [['NAFEVSBlock', 'NAFEVSBlock', 'NAFEVSBlock'], ['NAFEVSBlock', 'NAFEVSBlock', 'NAFEVSBlock']] # localnaf naf_patch logfouriernaf LocalNAFEVSBlock_patch
+    # baseblock_dec_max_global: [['NAFEVSBlock', 'NAFEVSBlock', 'NAFEVSBlock'], ['NAFEVSBlock', 'NAFEVSBlock', 'NAFEVSBlock']]
+    # baseblock_enc_mid_global: [['localnaf', 'localnaf', 'localnaf'], ['localnaf', 'localnaf', 'localnaf']]
+    # baseblock_dec_mid_global: [['localnaf', 'localnaf', 'localnaf'], ['localnaf', 'localnaf', 'localnaf']]
+  baseblock_enc_max_global: [['naf', 'NAFEVSBlock', 'NAFEVSBlock'], ['naf', 'NAFEVSBlock', 'NAFEVSBlock']] # localnaf naf_patch logfouriernaf LocalNAFEVSBlock_patch
+  baseblock_dec_max_global: [['NAFEVSBlock', 'NAFEVSBlock', 'naf'], ['NAFEVSBlock', 'NAFEVSBlock', 'naf']]
+    # baseblock_enc_max_global: [ [ 'localnaf', 'localnaf', 'localnaf' ], [ 'localnaf', 'localnaf', 'localnaf' ] ]
+    # baseblock_dec_max_global: [ [ 'localnaf', 'localnaf', 'localnaf' ], [ 'localnaf', 'localnaf', 'localnaf' ] ]
+    # baseblock_enc_mid_global: [['EVS', 'EVS', 'EVS'], ['EVS', 'EVS', 'EVS']]
+    # baseblock_dec_mid_global: [['EVS', 'EVS', 'EVS'], ['EVS', 'EVS', 'EVS']]
+    # baseblock_enc_max_global: [['EVS', 'EVS', 'EVS'], ['EVS', 'EVS', 'EVS']]
+    # baseblock_dec_max_global: [['EVS', 'EVS', 'EVS'], ['EVS', 'EVS', 'EVS']]
+  baseblock_enc_small_local: ['naf', 'naf', 'naf']
+  baseblock_dec_small_local: ['naf', 'naf', 'naf']
+  baseblock_enc_mid_local: ['naf', 'naf', 'naf', 'naf']
+  baseblock_dec_mid_local: ['naf', 'naf', 'naf', 'naf']
+  baseblock_enc_max_local: ['naf', 'naf', 'naf', 'naf'] # fouriernaf
+  baseblock_dec_max_local: ['naf', 'naf', 'naf', 'naf'] # naf_fouriersplit NAFEVSBlock
+  baseblock_enc_ker: [ 'EVSS', 'EVSS', 'EVSS', 'EVSS'] # EVSBlock EVSS nafwoffn
+  baseblock_dec_ker: [ 'LocalNAFEVSBlock_patch', 'LocalNAFEVSBlock_patch', 'LocalNAFEVSBlock_patch', 'LocalNAFEVSBlock_patch'] # kerv1LN kerv2LN ResBlock naf LNResBlock LNResBlock1x1
+#  dec_local_layers: ['fouriernaf', 'fouriernaf', 'fouriernaf', 'fouriernaf']
+  enc_small_layers: [ 1, 4, 8 ]
+  dec_small_layers: [ 8, 4, 1 ]
+#  enc_mid_layers: [ 4, 6, 6 ]
+#  dec_mid_layers: [ 6, 6, 4 ]
+  enc_mid_layers: [[ 1, 4, 8 ], [ 1, 4, 8 ]]
+  dec_mid_layers: [[ 8, 4, 1 ], [ 8, 4, 1 ]]
+  enc_max_layers: [[ 1, 4, 8 ], [ 1, 4, 8 ]]
+  dec_max_layers: [[ 8, 4, 1 ], [ 8, 4, 1 ]]
+  enc_ker_layers: [ 1, 1, 1, 1 ] # [ 2, 2, 4 ] # [ 2, 2, 6 ] [ 2, 2, 16 ]
+  dec_ker_layers: [ 1, 1, 1, 1 ] # [ 2, 2, 2 ] [ 16, 2, 2 ]
+  enc_light_layers: [ 1, 1, 1 ]
+  prior_model: # /data/mxt_code/UFPNet/net_g_GoPro.pth
+  drop_path: 0.
+  small_scale: false
+  mid_scale: true
+  small_enc: false
+  mid_flip: false
+  save_memory: false
+  save_memory_global_encoder: [true, true, true, true]
+  save_memory_global_decoder: [true, true, true, true]
+  save_memory_local_encoder: [true, true, true, true]
+  save_memory_local_decoder: [true, true, true, true]
+  save_memory_ker: [false, false, true, true]
+  save_memory_local_ker: [false, false, true, true]
+  kernel_size: 65 # 19 31
+  train_size: [820, 820]
+  patch_size: [820, 820]
+  frozen_global: false
+  frozen_kernel: false
+  multiscale_enc: false
+
+path:
+  pretrain_network_g: ~ # /data/mxt_code/DeepMXT/experiments/Deblurring_DeepGLHF48_ablation_1global_frozen-1kernel53-1k-1local_3scale_s3b224228448_freqloss_1e-3_noema_256bs8_rev_200k/models/net_g_30000.pth
+  strict_load_g: false
+  resume_state: ~
+
+# training settings
+train:
+  total_iter: 150000
+  warmup_iter: -1 # 4000 # -1 # no warm up
+  use_grad_clip: true
+#  ema_decay: 0.999
+  gt_for_train: true # true false
+  # Split 300k iterations into two cycles.
+  # 1st cycle: fixed 3e-4 LR for 92k iters.
+  # 2nd cycle: cosine annealing (3e-4 to 1e-6) for 208k iters.
+#  scheduler:
+#    type: CosineAnnealingRestartCyclicLR
+#    periods: [300000, 300000]
+#    restart_weights: [1, 0.5]
+#    eta_mins: [0.0000001,0.0000001]    # [0.000001,0.000001] [0.0003,0.000001]
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 150000
+    eta_min: !!float 1e-7
+
+  mixing_augs:
+    mixup: false
+    mixup_beta: 1.2
+    use_identity: true
+
+  optim_g:
+    type: AdamW
+    lr: !!float 1e-3 # !!float 1e-3 3e-4
+    weight_decay: !!float 1e-3
+    betas: [0.9, 0.9]
+
+  # losses
+  pixel_opt:
+    type: L1Loss # FreqLoss
+    loss_weight: 1.0
+    reduction: mean
+
+  fft_loss_opt:
+    type: FourierLoss # FFTLoss
+    loss_weight: 0.01
+    reduction: mean
+
+
+# validation settings
+val:
+  window_size: 8
+  val_freq: !!float 5e3 # !!float 4e3
+  save_img: true
+  rgb2bgr: true
+  use_image: true
+  max_minibatch: 8
+  save_path: /data/mxt_code/DeepMXT/visualization/RealBlur_J
+  # pad_: [64, 64]
+
+  metrics:
+    psnr_RealBlurR: # metric name, can be arbitrary psnr_DeepReFT
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 1000
+  save_checkpoint_freq: !!float 5e3 # !!float 4e3
+  use_tb_logger: true # false # true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
+

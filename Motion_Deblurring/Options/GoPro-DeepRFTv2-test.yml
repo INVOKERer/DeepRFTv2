@@ -1,0 +1,107 @@
+network_g:
+  type: DeepRFTv2
+  up2scale: false
+  frozen_encoder: false
+  get_ker: false
+  inp_channels: 3
+  out_channels: 3
+  dims: [48, 48, 48] # [64, 128, 256, 512] # [32, 64, 128, 256]
+  num_global_unet: 2
+  num_kernel_est: 0
+  num_local_unet: 0
+  deblur_kernel_mode: ker_max_mid # ker_max_mid_small ker_max_mid ker_max no_ker
+  deblur_kernel: true
+  deblur_mask: false
+  latent_sharp: true
+  inp_feature: feature  # inp_latentsharp_feature
+  deconv_feature: feature
+  norm_type: LayerNorm  # LayerNorm BatchNorm  InstanceNorm None
+  spatial_add: false
+  spatial_decoder: false
+  num_ker: 48
+  pad_size: 32
+  dims_ker: [48, 48, 48]  #  32
+  ks: [0, 0, 0] # [0, 0, 0] # [32, 16, 8]
+  sub_image: true
+#  select_range: [0, 720, 279, 999]
+  sub_image_size: [512, 512]
+  overlap_size: [128, 128] # [440, 440] [48, 48] #
+  downsample: concat # concat_downsample # downsample downsample_concat
+  downsample_ker: concat_nodownsample # noconcat_nodownsample concat_nodownsample
+  downsample_local: concat
+
+  downsample_mode: conv # bilinear shuffle_conv conv_shuffle conv
+  upsample_mode: conv1x1_shuffle   # bilinear conv1x1_shuffle shuffle_conv conv_shuffle conv
+  fuse_downsample_mode: conv
+  fuse_upsample_mode: conv1x1_shuffle
+#  random_pad: false
+#  pad_mode: replicate
+  fuse_method_encoder: Fuse_in_Encoder # a DownSample2shallow # b Fuse_in_Encoder # c Fuse_in_Encoder2shallow # NoFuse # DownSampleAdd
+  fuse_method_decoder: DownSample2latent # d DownSample2latent # e Fuse_in_Decoder # f Fuse_in_Decoder2latent # UpSampleAdd012
+  num_local_decoder: 0
+  enc_local_layers: [ 1, 1, 2, 2 ]
+  dec_local_layers: [ 2, 2, 1, 1 ]
+  sub_dec_width: 48
+  baseblock_enc_local: [ localnaf_fouriercomplex, localnaf_fouriercomplex, localnaf_fouriercomplex, localnaf_fouriercomplex ] # naf_FourierSplit
+  baseblock_dec_local: [ localnaf_fouriercomplex, localnaf_fouriercomplex, localnaf_fouriercomplex, localnaf_fouriercomplex ]
+  num_heads_enc: [1, 2, 4, 8]
+  num_heads_dec: [8, 4, 2, 1] # ['fcnaf', 'fcnaf', 'fcnaf'] ['naf', 'naf', 'naf'] fdmambaforward_naf fsmambaforward_naf fmambaforward_naf fouriernaf flocalmambaforward_naf
+  baseblock_enc_small_global: [['naf', 'naf', 'naf'], ['naf', 'naf', 'naf']] # ASSMBlock
+  baseblock_dec_small_global: [['naf', 'naf', 'naf'], ['naf', 'naf', 'naf']]
+  baseblock_enc_mid_global: [ [ 'naf', 'naf', 'naf' ], [ 'naf', 'naf', 'naf' ] ]
+  baseblock_dec_mid_global: [ [ 'naf', 'naf', 'naf' ], [ 'naf', 'naf', 'naf' ] ]
+#  baseblock_enc_max_global: [ [ 'naf', 'naf', 'naf' ], [ 'naf', 'naf', 'naf' ] ]
+#  baseblock_dec_max_global: [ [ 'naf', 'naf', 'naf' ], [ 'naf', 'naf', 'naf' ] ]
+  baseblock_enc_max_global: [ [ 'naf', 'NAFEVSBlock', 'NAFEVSBlock' ], [ 'naf', 'NAFEVSBlock', 'NAFEVSBlock' ] ] # localnaf naf_patch logfouriernaf LocalNAFEVSBlock_patch
+  baseblock_dec_max_global: [ [ 'NAFEVSBlock', 'NAFEVSBlock', 'naf' ], [ 'NAFEVSBlock', 'NAFEVSBlock', 'naf' ] ]
+#  baseblock_enc_mid_global: [ [ 'naf_nosca', 'naf_nosca', 'naf_nosca' ], [ 'naf_nosca', 'naf_nosca', 'naf_nosca' ] ]
+#  baseblock_dec_mid_global: [ [ 'naf_nosca', 'naf_nosca', 'naf_nosca' ], [ 'naf_nosca', 'naf_nosca', 'naf_nosca' ] ]
+#  baseblock_enc_max_global: [ [ 'naf_nosca', 'naf_nosca', 'naf_nosca' ], [ 'naf_nosca', 'naf_nosca', 'naf_nosca' ] ] # localnaf naf_patch logfouriernaf LocalNAFEVSBlock_patch
+#  baseblock_dec_max_global: [ [ 'naf_nosca', 'naf_nosca', 'naf_nosca' ], [ 'naf_nosca', 'naf_nosca', 'naf_nosca' ] ]
+#  baseblock_enc_mid_global: [['localnaf', 'localnaf', 'localnaf'], ['localnaf', 'localnaf', 'localnaf']]
+#  baseblock_dec_mid_global: [['localnaf', 'localnaf', 'localnaf'], ['localnaf', 'localnaf', 'localnaf']]
+#  baseblock_enc_max_global: [ [ 'localnaf', 'localnaf', 'localnaf' ], [ 'localnaf', 'localnaf', 'localnaf' ] ]
+#  baseblock_dec_max_global: [ [ 'localnaf', 'localnaf', 'localnaf' ], [ 'localnaf', 'localnaf', 'localnaf' ] ]
+#  baseblock_enc_max_global: [['localnaf', 'LocalNAFEVSBlock_patch', 'LocalNAFEVSBlock_patch'], ['localnaf', 'LocalNAFEVSBlock_patch', 'LocalNAFEVSBlock_patch']] # localnaf naf_patch logfouriernaf LocalNAFEVSBlock_patch
+#  baseblock_dec_max_global: [['LocalNAFEVSBlock_patch', 'LocalNAFEVSBlock_patch', 'localnaf'], ['LocalNAFEVSBlock_patch', 'LocalNAFEVSBlock_patch', 'localnaf']]
+  baseblock_enc_small_local: ['naf', 'naf', 'naf']
+  baseblock_dec_small_local: ['naf', 'naf', 'naf']
+  baseblock_enc_mid_local: ['naf', 'naf', 'naf', 'naf']
+  baseblock_dec_mid_local: ['naf', 'naf', 'naf', 'naf']
+  baseblock_enc_max_local: ['naf', 'naf', 'naf', 'naf'] # fouriernaf
+  baseblock_dec_max_local: ['naf', 'naf', 'naf', 'naf'] # naf_fouriersplit NAFEVSBlock
+  baseblock_enc_ker: [ 'EVSS', 'EVSS', 'EVSS', 'EVSS'] # EVSBlock EVSS nafwoffn
+  baseblock_dec_ker: [ 'localnaf_fouriercomplex', 'localnaf_fouriercomplex', 'localnaf_fouriercomplex', 'localnaf_fouriercomplex'] # kerv1LN kerv2LN ResBlock naf LNResBlock LNResBlock1x1
+#  dec_local_layers: ['fouriernaf', 'fouriernaf', 'fouriernaf', 'fouriernaf']
+  enc_small_layers: [ 1, 4, 8 ]
+  dec_small_layers: [ 8, 4, 1 ]
+#  enc_mid_layers: [ 4, 6, 6 ]
+#  dec_mid_layers: [ 6, 6, 4 ]
+  enc_mid_layers: [[ 1, 4, 8 ], [ 1, 4, 8 ]]
+  dec_mid_layers: [[ 8, 4, 1 ], [ 8, 4, 1 ]]
+  enc_max_layers: [[ 1, 4, 8 ], [ 1, 4, 8 ]]
+  dec_max_layers: [[ 8, 4, 1 ], [ 8, 4, 1 ]]
+  enc_ker_layers: [ 1, 1, 1, 1 ] # [ 2, 2, 4 ] # [ 2, 2, 6 ] [ 2, 2, 16 ]
+  dec_ker_layers: [ 1, 1, 1, 1 ] # [ 2, 2, 2 ] [ 16, 2, 2 ]
+  enc_light_layers: [ 1, 1, 1 ]
+  prior_model: # /home/ubuntu/90t/personal_data/mxt/MXT/ckpts/UFPNet/net_g_GoPro.pth
+  drop_path: 0.
+  small_scale: false
+  mid_scale: true
+  small_enc: false
+  mid_flip: false
+  save_memory: false
+  save_memory_global_encoder: [true, true, true, true]
+  save_memory_global_decoder: [true, true, true, true]
+  save_memory_local_encoder: [false, false, true, true]
+  save_memory_local_decoder: [false, false, true, true]
+  save_memory_ker: [true, true, true, true]
+  save_memory_local_ker: [false, false, true, true]
+  kernel_size: 65 # 19 31
+  train_size: [ 512, 512 ]
+  patch_size: [ 512, 512 ]
+#  train_size: [384, 384]
+#  patch_size: [512, 512]
+  frozen_global: false
+  frozen_kernel: false
+  multiscale_enc: false

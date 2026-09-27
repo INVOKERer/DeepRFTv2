@@ -1,0 +1,166 @@
+# general settings
+name: test_ATD_lightSR_x2
+model_type: ImageCleanModel_infernece
+scale: 2
+num_gpu: 1
+manual_seed: 0
+
+datasets:
+#  train:
+#    num_worker_per_gpu: 8
+#    batch_size_per_gpu: 8
+#
+#
+#    task: SR
+#    name: DF2K
+#    type: PairedImageDataset
+#    dataroot_gt: /data/mxt_data/SR/DF2K/HR
+#    dataroot_lq: /data/mxt_data/SR/DF2K/LR_bicubic/X2
+#    filename_tmpl: '{}x2'
+#    io_backend:
+#      type: disk
+#
+#    mini_batch_sizes: [ 8 ] # 8 4x4
+#    iters: [ 500000 ]
+#    gt_size: 64
+#    gt_sizes: [ 64 ]
+#    #    dataset_enlarge_ratio: 1
+#    #    prefetch_mode: ~
+#    #    gt_size: 128
+#    use_hflip: true
+#    use_rot: true
+
+  val:  # the 1st test dataset
+    name: Set5
+    type: PairedImageDataset
+    dataroot_gt: /data/mxt_data/SR/SR/Set5/HR
+    dataroot_lq: /data/mxt_data/SR/SR/Set5/LR_bicubic/X2
+    filename_tmpl: '{}x2'
+    crop_size: -1
+    crop_sizes: [ -1 ]
+    io_backend:
+      type: disk
+
+  test_2:  # the 2nd test dataset
+    name: Set14
+    type: PairedImageDataset
+    dataroot_gt: /data/mxt_data/SR/SR/Set14/HR
+    dataroot_lq: /data/mxt_data/SR/SR/Set14/LR_bicubic/X2
+    filename_tmpl: '{}x2'
+    crop_size: -1
+    crop_sizes: [ -1 ]
+    io_backend:
+      type: disk
+#
+  test_3:  # the 3rd test dataset
+    name: BSD100
+    type: PairedImageDataset
+    dataroot_gt: /data/mxt_data/SR/SR/B100/HR
+    dataroot_lq: /data/mxt_data/SR/SR/B100/LR_bicubic/X2
+    filename_tmpl: '{}x2'
+    crop_size: -1
+    crop_sizes: [ -1 ]
+    io_backend:
+      type: disk
+
+  test_4:  # the 4th test dataset
+    name: Urban100
+    type: PairedImageDataset
+    dataroot_gt: /data/mxt_data/SR/SR/Urban100/HR
+    dataroot_lq: /data/mxt_data/SR/SR/Urban100/LR_bicubic/X2
+    filename_tmpl: '{}x2'
+    crop_size: -1
+    crop_sizes: [ -1 ]
+    io_backend:
+      type: disk
+
+  test_5:  # the 5th test dataset
+    name: Manga109
+    type: PairedImageDataset
+    dataroot_gt: /data/mxt_data/SR/SR/Manga109/HR
+    dataroot_lq: /data/mxt_data/SR/SR/Manga109/LR_bicubic/X2
+    filename_tmpl: '{}_LRBI_x2'
+    crop_size: -1
+    crop_sizes: [ -1 ]
+    io_backend:
+      type: disk
+
+network_g:
+  type: ATD
+  upscale: 2
+  in_chans: 3
+  img_size: 64
+
+  embed_dim: 48
+  depths: [6, 6, 6, 6, ]
+  num_heads: [4, 4, 4, 4, ]
+  window_size: 16
+  category_size: 128
+  num_tokens: 64
+  reducted_dim: 8
+  convffn_kernel_size: 7
+  img_range: 1.
+  mlp_ratio: 1
+  upsampler: 'pixelshuffledirect'
+  resi_connection: '1conv'
+  use_checkpoint: true
+  ker_size: 64
+  overlap_size: [16, 16]
+  FKE: true
+  get_ker: true
+  sub_image: false
+  norm_type: 'LayerNorm' # None # 'LayerNorm'
+  enc_ker_layers: [ 1,1,1,1 ]
+  baseblock_enc_ker: [ 'EVSS', 'EVSS','EVSS','EVSS' ]
+  #  baseblock_enc_ker: ['AVSBlock', 'AVSBlock','AVSBlock','AVSBlock']
+  save_memorys: [ false, false, false, false, false, false ]
+
+
+
+path:
+  pretrain_network_g: /home/ubuntu/150t/personal_data/mxt/MXT/ckpts/ATD-SR/noFKE.pth
+#  pretrain_network_g: /data/mxt_code/DeepMXT/experiments/101_ATD_light-FKE_SRx2_scratch/models/net_g_300000.pth # /home/ubuntu/150t/personal_data/mxt/MXT/ckpts/SR/net_g_500000.pth
+  strict_load_g: true
+  param_key: params_ema
+
+# validation settings
+val:
+  save_img: false
+  suffix: ~  # add suffix to saved images, if None, use exp name
+  save_path: /home/ubuntu/150t/personal_data/mxt/MXT/exp_results/ATD-FKE/Lightx2
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 2
+      test_y_channel: true
+    ssim:
+      type: calculate_ssim
+      crop_border: 2
+      test_y_channel: true
+train:
+  optim_g:
+    type: Adam
+    #lr: !!float 2e-4
+    lr: !!float 2e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [250000, 400000, 450000, 475000]
+    #milestones: [5000, 10000, 15000, 20000，25000，30000，35000]
+    gamma: 0.5
+
+  mixing_augs:
+    mixup: false
+    mixup_beta: 1.2
+    use_identity: true
+
+  total_iter: 500000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean

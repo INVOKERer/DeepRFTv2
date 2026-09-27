@@ -9,7 +9,7 @@ The code will also be published in [UniDeblur](https://github.com/INVOKERer/UniD
 [ckpts](https://pan.baidu.com/s/1qBAv43rvyWa68RlQGVrWPA?pwd=2t7a) 提取码: 2t7a
 
 
-To R2, We would like to cite F2former when they release their code and their code is reproducable. 
+To R2, We hope to cite and use F2former when they can release the reproducable code. 
 <img width="2300" height="484" alt="图片" src="https://github.com/user-attachments/assets/356312c4-a6b7-45a9-bfde-d38e7da38d97" />
 
 ## Our Related Works

@@ -9,7 +9,6 @@ The code will also be published in [UniDeblur](https://github.com/INVOKERer/UniD
 [ckpts](https://pan.baidu.com/s/1qBAv43rvyWa68RlQGVrWPA?pwd=2t7a) 提取码: 2t7a
 
 
-<img width="2224" height="1270" alt="图片" src="https://github.com/user-attachments/assets/eaac3d9d-814e-477e-9ec8-db10a07d7eef" />
 
 ## Our Related Works
 - Deep Residual Fourier Transformation for Single Image Deblurring, arXiv 2021. [Paper](https://arxiv.org/abs/2111.11745v1) | [Code](https://github.com/INVOKERer/DeepRFT)

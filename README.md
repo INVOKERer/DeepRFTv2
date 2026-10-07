@@ -1,5 +1,5 @@
 # [DeepRFTv2: Kernel-level Learning for Image Deblurring](https://arxiv.org/abs/2511.21132)
-[Xintian Mao](https://scholar.google.es/citations?user=eM5Ogs8AAAAJ&hl=en),Haofei Song, Yin-Nian Liu, Qingli Li and [Yan Wang](https://scholar.google.com/citations?user=5a1Cmk0AAAAJ&hl=en)
+[Xintian Mao](https://scholar.google.es/citations?user=eM5Ogs8AAAAJ&hl=en), Haofei Song, Yin-Nian Liu, Qingli Li and [Yan Wang](https://scholar.google.com/citations?user=5a1Cmk0AAAAJ&hl=en)
 
 
 [Resluts](https://pan.baidu.com/s/1kJj4GU5PejnAgeDX8boN-w?pwd=fdjd) 提取码: fdjd 

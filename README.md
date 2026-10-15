@@ -15,6 +15,18 @@ We will cite F2former when they can release the reproducable code.
 
 The code will also be published in [UniMotionDeblur](https://github.com/INVOKERer/UniMotionDeblur)
 
+## Citation
+If you use UniDeblur, please consider citing:
+```
+@inproceedings{xintm2025DeepRFTv2, 
+    title = {DeepRFTv2: Kernel-level Learning for Image Deblurring},
+    author = {Xintian Mao, Jiansheng Wang, Huaiyuan Wang, Qingli Li, Yan Wang}, 
+    booktitle = {arXiv:2511.21132}, 
+    year = {2025}
+    }
+```
+
+
 ## Our Related Works
 - Deep Residual Fourier Transformation for Single Image Deblurring, arXiv 2021. [Paper](https://arxiv.org/abs/2111.11745v1) | [Code](https://github.com/INVOKERer/DeepRFT)
 - Intriguing Findings of Frequency Selection for Image Deblurring, AAAI 2023. [Paper](https://arxiv.org/abs/2111.11745) | [Code](https://github.com/DeepMed-Lab-ECNU/DeepRFT-AAAI2023)

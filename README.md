@@ -1,3 +1,7 @@
+[![Papers with Code: #2 on RealBlur-J](https://paperswithcode.co/api/v1/papers/2511.21132/leaderboard-badge.svg?eval=38163&live=1)](https://paperswithcode.co/api/v1/papers/2511.21132/leaderboard-badge-link?eval=38163)
+[![Papers with Code: #2 on RealBlur-R](https://paperswithcode.co/api/v1/papers/2511.21132/leaderboard-badge.svg?eval=38162&live=1)](https://paperswithcode.co/api/v1/papers/2511.21132/leaderboard-badge-link?eval=38162)
+[![Papers with Code: #3 on HIDE](https://paperswithcode.co/api/v1/papers/2511.21132/leaderboard-badge.svg?eval=38179&live=1)](https://paperswithcode.co/api/v1/papers/2511.21132/leaderboard-badge-link?eval=38179)
+
 # [DeepRFTv2: Kernel-level Learning for Image Deblurring](https://arxiv.org/abs/2511.21132)
 [Xintian Mao](https://scholar.google.es/citations?user=eM5Ogs8AAAAJ&hl=en), Haofei Song, Yin-Nian Liu, Qingli Li and [Yan Wang](https://scholar.google.com/citations?user=5a1Cmk0AAAAJ&hl=en)
 
